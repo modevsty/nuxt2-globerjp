@@ -1,0 +1,41 @@
+// Ref: https://github.com/nuxt-community/vuetify-module#customvariables
+//
+// The variables you want to modify
+// $font-size-root: 20px;
+$img-preload-filter: blur(0.5px) !default;
+
+body{
+  touch-action: manipulation !important;
+}
+
+.disable-tap-zoom {
+  touch-action: manipulation !important;
+}
+
+.xxx-enter-active {
+  transition: opacity .3s ease-in-out;
+}
+
+.xxx-leave-active {
+  transition: none;
+}
+
+.xxx-enter, .xxx-leave, .xxx-leave-to {
+  opacity: 0;
+}
+
+.xxx-enter-to {
+  opacity: 1;
+}
+
+// h1 {
+//   margin-bottom: 16px;
+// }
+
+// h2 {
+//   margin-bottom: 16px;
+// }
+
+// h3 {
+//   margin-bottom: 16px;
+// }

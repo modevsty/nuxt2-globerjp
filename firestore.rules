@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+  
+    // match /{document=**} {
+    //   allow read: if false;
+    //   allow write: if false;
+    // }
+    match /news/{newsId} {
+    	allow read;
+      allow write: if isAdmin();
+    }
+  	match /events/{eventId} {
+			allow read;
+      allow create: if isAdmin() || (isOrganizer() && isCorrectEventCreator());
+      allow update, delete: if isAdmin() || (isOrganizer() && isCorrectEventUpdater(eventId));
+    }
+  
+  	match /blogs/{blogId} {
+  	allow read: if true;
+  	allow write: if isAdmin();
+  	}
+  	match /blogTeasers/{teaserId} {
+  	allow read: if true;
+  	allow write: if isAdmin();
+  	}
+    
+  	match /entries/{entryId} {
+  	allow read: if true;
+  	allow create: if isLoggedIn() && isCorrectEntryCreator();
+  	allow update, delete: if isLoggedIn() && isCorrectEntryUpdater(entryId);
+  	}
+  	match /users/{userId} {
+    allow get;
+  	allow list: if isAdmin();
+  	allow write: if isCorrectUser(userId) && isValidUserUpdate();
+  	}
+  	match /userResumes/{userId} {
+  	allow read: if isCorrectUser(userId) || isAdmin();
+  	allow write: if isCorrectUser(userId);
+  	}
+  	match /repoImages/{userId} {
+  	allow read: if true;
+  	allow write: if isCorrectUser(userId);
+  	}
+  	match /commentEntries/{commentEntryId} {
+  	allow read: if true;
+  	allow create: if isCorrectCommentCreator();
+  	allow update, delete: if isCorrectCommentUpdater(commentEntryId);
+  	}
+  	match /eventImages/{eventImageId} {
+  	allow read: if true;
+  	allow create: if isCorrectEventImageCreator();
+  	allow update, delete: if isCorrectEventImageUpdater(eventImageId);
+  	}
+    function isCorrectEventImageCreator() {
+      return isLoggedIn() && request.resource.data.userId == request.auth.uid;
+    }
+    function isCorrectEventImageUpdater(eventImageId) {
+      return isLoggedIn() && get(/databases/$(database)/documents/eventImages/$(eventImageId)).data.userId == request.auth.uid;
+    }
+    function isCorrectCommentCreator() {
+      return isLoggedIn() && request.resource.data.userId == request.auth.uid;
+    }
+    function isCorrectCommentUpdater(commentEntryId) {
+      return isLoggedIn() && get(/databases/$(database)/documents/commentEntries/$(commentEntryId)).data.userId == request.auth.uid;
+    }
+    function isValidUserUpdate() {
+      return !isInvalidAdminUpdate() && !isInvalidOrganizerUpdate();
+    }
+    function isInvalidAdminUpdate() {
+      return !isAdmin() && request.resource.data.keys().hasAny(["isAdmin"]);
+    }
+    function isInvalidOrganizerUpdate() {
+      return !isOrganizer() && request.resource.data.keys().hasAny(["isOrganizer"]);
+    }
+    function isCorrectEventUpdater(eventId) {
+      return isLoggedIn() && get(/databases/$(database)/documents/events/$(eventId)).data.creatorId == request.auth.uid;
+    }
+    function isCorrectEventCreator() {
+      return isLoggedIn() && request.resource.data.creatorId == request.auth.uid;
+    }
+    function isCorrectEntryUpdater(entryId) {
+      return isLoggedIn() && get(/databases/$(database)/documents/entries/$(entryId)).data.userId == request.auth.uid;
+    }
+    function isCorrectEntryCreator() {
+      return isLoggedIn() && request.resource.data.userId == request.auth.uid;
+    }
+    function isCorrectUser(userId) {
+      return isLoggedIn() && userId == request.auth.uid;
+    }
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+    function isOrganizer() {
+      return isLoggedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isOrganizer == true;
+    }
+    function isAdmin() {
+      return isLoggedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+  } 
+}

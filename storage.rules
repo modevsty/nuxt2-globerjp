@@ -1,0 +1,51 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // match /{allPaths=**} {
+    //   allow read;
+    //   allow write: if isLoggedIn();
+    // }
+    match /blogImages/{userId}/{allPaths=**} {
+    	allow read;
+      allow write: if isLoggedIn() && (isCorrectUser(userId) || isAdmin());
+    }
+    match /userImages/{userId}/{allPaths=**} {
+    	allow read;
+      allow write: if isLoggedIn() && (isCorrectUser(userId) || isAdmin());
+    }
+    match /images/{eventId}/{allPaths=**} {
+    	allow read;
+      allow write: if isLoggedIn() && (isEventCreator(eventId) || isAdmin());
+    }
+    match /eventImages/{eventImageId}/{allPaths=**} {
+			allow read;
+      allow write: if isLoggedIn() && (isEventImageCreator(eventImageId) || isAdmin())
+    }
+    match /repoImages/{userId}/{allPaths=**} {
+			allow read;
+      allow write: if isLoggedIn() && (isCorrectUser(userId) || isAdmin())
+    }
+    match /customFormFiles/{eventId}/{userId}/{allPaths=**} {
+    	allow read;
+      allow write: if isLoggedIn() && (isCorrectUser(userId) || isAdmin() || isEventCreator(eventId))
+    }
+    function isCorrectUser(userId) {
+    	return isLoggedIn() && userId == request.auth.uid
+    }
+    function isEventImageCreator(eventImageId) {
+      return isLoggedIn() && firestore.get(/databases/(default)/documents/eventImages/$(eventImageId)).data.userId == request.auth.uid;
+    }
+    function isEventCreator(eventId) {
+      return isLoggedIn() && firestore.get(/databases/(default)/documents/events/$(eventId)).data.creatorId == request.auth.uid;
+    }
+    // function isOrganizer() {
+    //   return isLoggedIn() && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isOrganizer == true;
+    // }
+    function isAdmin() {
+    	return isLoggedIn() && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    function isLoggedIn() {
+    	return request.auth != null;
+    }
+  }
+}

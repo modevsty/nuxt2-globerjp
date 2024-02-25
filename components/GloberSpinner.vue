@@ -1,0 +1,67 @@
+<template>
+  <div style="margin-top: 10px;" class="text-center">
+    <!-- <div class="lds-ring">
+      <div /><div /><div /><div />
+    </div> -->
+    <div class="glober-gif">
+      <img contain src="/img/glober_loading.gif" />
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'LoadingSpinner'
+}
+</script>
+
+<style scoped>
+.glober-gif {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.glober-gif img {
+
+    width: 100%;
+    height: 100%;
+
+}
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: 5px;
+  border-width: 5px;
+  border-style: solid;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: #2196F3 transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
